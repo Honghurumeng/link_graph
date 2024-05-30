@@ -11,7 +11,7 @@
 ``` javascript
 
 const data = {
-            //id    name    showName    color    radiusRatio    fontSizeRatio    fontColor    icon    link    hasMask    tooltip    transparent    copy    hasMask
+            //id    name    showName    color    radiusRatio    fontSizeRatio    fontColor    icon    link    hasMask    tooltip    transparent    copy
             "nodes": [
                 { "id": "1", "name": "github", "showName": false, "color": "#FF5733", "radiusRatio": 0.13, "fontSizeRatio": 0.015, "fontColor": "white", "icon": "https://avatars.githubusercontent.com/u/60283556?v=4", "link": "https://github.com/Honghurumeng", "hasMask": true, "tooltip": "Github", "transparent": true },
                 { "id": "2", "name": "gmail", "showName": false, "color": "#33FF57", "radiusRatio": 0.07, "fontSizeRatio": 0.012, "fontColor": "white", "hasMask": false, "tooltip": "点击复制：honghurumeng@gamil.com", "icon": 'https://ssl.gstatic.com/ui/v1/icons/mail/rfr/logo_gmail_lockup_default_2x_r5.png', "transparent": true, "copy": 'honghurumeng@gamil.com' },
