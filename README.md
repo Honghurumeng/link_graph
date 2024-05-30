@@ -2,6 +2,14 @@
 
 ## 使用D3js创建
 
+图像中每个部分都可以进行配置，包括线条粗细，直线或曲线，颜色，相对位置。
+
+节点内容分为三层，包括文字，图像，背景色，可以分别选择是否显示。
+
+节点动作包括打开窗口和点击复制。
+
+复制时的toast组件是[mtoast](https://honghurumeng.github.io/mtoast-demo)
+
 [点击查看Demo](https://honghurumeng.github.io/)
 
 ![demo](./image/截屏2024-05-30%2011.43.56.png)
