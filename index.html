@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Honghurumeng</title>
+    <link rel="icon" type="image/svg+xml" href="https://github.githubassets.com/favicons/favicon.svg">
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="./mtoast.js"></script>
+    <style>
+        body {
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-size: cover;
+            background-position: center center;
+            background-repeat: repeat;
+            background-image: url("data:image/svg+xml;utf8,%3Csvg width=%222000%22 height=%221000%22 xmlns=%22http:%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath fill=%22%23e5eaff%22 d=%22M0 0h2000v1000H0z%22%2F%3E%3Cpath d=%22M0 142h0c99.631 3.982 199.263 7.964 308 0s226.581-27.875 354-20c127.419 7.875 264.413 43.536 366 45 101.587 1.464 167.765-31.267 274-34 106.235-2.733 252.525 24.533 381 23 128.475-1.533 239.136-31.867 289-39 49.864-7.133 38.932 8.933 68 25%22 fill=%22none%22 stroke=%22%23173fff%22 stroke-width=%224%22 stroke-linecap=%22round%22%2F%3E%3Cpath d=%22M0 285h0c122.483 16.216 244.966 32.433 359 27 114.034-5.433 219.617-32.515 334-33 114.383-.485 237.564 25.627 338 26 100.436.373 178.127-24.993 271-33 92.873-8.007 200.927 1.344 342 10s315.164 16.616 380 17c64.836.384 20.418-6.808 16-14%22 fill=%22none%22 stroke=%22%237e95ff%22 stroke-width=%224%22 stroke-linecap=%22round%22%2F%3E%3Cpath d=%22M0 428h0c116.4 2.31 232.8 4.618 347 0 114.2-4.618 226.2-16.164 330-13 103.8 3.164 199.402 21.038 317 28 117.598 6.962 257.191 3.01 363 4 105.809.99 177.833 6.92 288 4s258.476-14.692 324-20 48.262-4.154 71-3%22 fill=%22none%22 stroke=%22%2397a9ff%22 stroke-width=%224%22 stroke-linecap=%22round%22%2F%3E%3Cpath d=%22M0 571h0c116.767-1.202 233.534-2.403 352-5 118.466-2.597 238.631-6.588 345-13s198.941-15.243 306-7 228.603 33.56 339 33c110.397-.56 209.645-26.997 338-29s285.816 20.428 344 28c58.184 7.572 17.092.286 16-7%22 fill=%22none%22 stroke=%22%238298ff%22 stroke-width=%224%22 stroke-linecap=%22round%22%2F%3E%3Cpath d=%22M0 714h0c96.753 5.833 193.506 11.666 307 13 113.494 1.334 243.727-1.831 354-2 110.273-.169 200.584 2.66 313-6s246.936-28.806 357-21c110.064 7.806 195.671 43.563 317 43 121.329-.563 278.38-37.447 343-48 64.62-10.553 36.81 5.223 49 21%22 fill=%22none%22 stroke=%22%235572ff%22 stroke-width=%224%22 stroke-linecap=%22round%22%2F%3E%3Cpath d=%22M0 857h0c128.837-12.317 257.674-24.633 357-24 99.326.633 169.14 14.217 276 21 106.86 6.783 250.763 6.765 372 6 121.237-.765 219.806-2.277 321-6 101.194-3.723 205.014-9.656 329-14 123.986-4.344 268.139-7.098 329-4 60.861 3.098 38.43 12.05 56 21%22 fill=%22none%22 stroke=%22%23b5c2ff%22 stroke-width=%224%22 stroke-linecap=%22round%22%2F%3E%3C%2Fsvg%3E");
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+        #mindmap-container {
+            position: absolute;
+            width: 80%;
+            height: 80%;
+            top: 10%;
+            left: 10%;
+            z-index: 1000;
+        }
+
+        text {
+            pointer-events: none;
+        }
+
+        .node-icon {
+            pointer-events: none;
+        }
+
+        .clickable {
+            cursor: pointer;
+        }
+
+        .tooltip {
+            position: absolute;
+            text-align: center;
+            width: auto;
+            height: auto;
+            padding: 8px;
+            font: 12px sans-serif;
+            background: rgba(0, 0, 0, 0.7);
+            color: #fff;
+            border: 0px;
+            border-radius: 8px;
+            pointer-events: none;
+            visibility: hidden;
+            z-index: 1001;
+            /* 提升层级 */
+        }
+
+        #page-info {
+            position: absolute;
+            bottom: 5px;
+            right: 5px;
+            font-size: x-small;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="mindmap-container"></div>
+    <div id="tooltip" class="tooltip"></div>
+    <div id="page-info">Powered by D3.js</div>
+    <script>
+        // 显示SVG图像
+        const mail = `<svg t="1717037765275" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="15909" width="200" height="200"><path d="M512 512m-512 0a512 512 0 1 0 1024 0 512 512 0 1 0-1024 0Z" fill="#E9F4FF" p-id="15910"></path><path d="M510.4384 230.0416c82.944 0 147.456 24.576 195.072 73.728 41.472 43.008 62.208 96.768 62.208 160.512 0 53.76-17.664 103.68-51.456 149.76-34.56 44.544-33.536 55.3984-76.544 55.3984l-9.3696-48.1024c22.272 0 22.9376-8.064 44.4416-36.48 25.344-33.024 38.4-72.96 38.4-119.808 0-49.152-17.664-91.392-52.224-125.184-38.4-36.864-89.856-55.296-154.368-55.296-69.12 0-125.184 22.272-167.424 66.816-42.24 43.776-62.976 99.84-62.976 168.96 0 76.032 21.504 133.632 66.048 173.568 40.704 36.096 98.304 54.528 173.568 54.528 50.688 0 94.464-8.448 130.56-24.576 33.024-16.128 59.136-38.4 79.104-66.048h68.352c-6.0928 10.7776-12.8 20.992-20.1472 30.6688-25.1392 33.024-57.728 59.392-98.1248 78.3872-47.616 21.504-101.376 33.024-159.744 33.024-96.768 0-172.8-25.344-227.328-76.032-54.528-50.688-81.408-119.808-81.408-205.824 0-79.872 26.112-147.456 79.872-201.216 56.832-58.368 131.328-86.784 223.488-86.784z" fill="#040405" p-id="15911"></path><path d="M597.248 681.216c-32.256 0-50.688-16.128-55.296-48.384-23.04 33.024-53.76 49.92-90.624 49.92-33.792 0-61.44-11.52-82.944-34.56-21.504-23.04-31.488-51.456-31.488-86.016 0-53.76 16.896-101.376 50.688-142.848 33.024-42.24 72.96-62.976 119.04-62.976 33.792 0 57.6 17.664 70.656 53.76l10.752-39.168h64.512l-52.992 190.464c-7.68 26.112-10.752 43.008-10.752 50.688 0 10.752 5.376 16.128 17.664 16.128 22.272 0 33.792 52.992-9.216 52.992z m-78.336-262.656c-29.952 0-56.064 14.592-78.336 44.544-23.04 29.952-33.792 63.744-33.792 102.144 0 18.432 3.84 33.024 12.288 43.776 7.68 10.752 20.736 16.128 37.632 16.128 15.36 0 30.72-6.144 46.08-18.432a95.232 95.232 0 0 0 33.792-49.152l15.36-56.832c6.144-21.504 9.216-35.328 9.216-39.936 0-12.288-4.608-21.504-12.288-29.184-8.448-9.216-18.432-13.056-29.952-13.056z" fill="#2394FB" p-id="15912"></path></svg>`
+        const qqmail = `<svg t="1717034839751" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="3082" width="200" height="200"><path d="M217.6 512l-135.68-138.24H2.56v294.4h79.36v-209.92l133.12 138.24 140.8-143.36v209.92H435.2v-61.44c-25.6-25.6-38.4-58.88-38.4-94.72 0-38.4 15.36-71.68 38.4-94.72v-40.96h-79.36L217.6 512z" fill="#2C91DE" p-id="3083"></path><path d="M704 568.32c-17.92 0-30.72 15.36-30.72 15.36-56.32 51.2-138.24 58.88-202.24 17.92 30.72 46.08 81.92 76.8 140.8 76.8 48.64 0 94.72-20.48 125.44-56.32 0 0 2.56-12.8 2.56-20.48-5.12-20.48-17.92-33.28-35.84-33.28z" fill="#ED4636" p-id="3084"></path><path d="M816.64 450.56h69.12V665.6h-69.12v-215.04z m135.68-107.52h69.12V665.6h-69.12V343.04zM806.4 386.56c0 25.6 20.48 43.52 43.52 43.52 25.6 0 43.52-20.48 43.52-43.52 0-23.04-20.48-43.52-43.52-43.52s-43.52 17.92-43.52 43.52z" fill="#2C91DE" p-id="3085"></path><path d="M642.56 345.6s-12.8 2.56-20.48 7.68c-12.8 10.24-17.92 28.16-7.68 43.52 10.24 15.36 28.16 17.92 28.16 17.92 38.4 12.8 71.68 38.4 94.72 74.24 15.36 28.16 23.04 58.88 20.48 92.16 25.6-48.64 25.6-107.52-2.56-158.72-25.6-38.4-66.56-69.12-112.64-76.8z" fill="#82D531" p-id="3086"></path><path d="M512 558.08c10.24-15.36 2.56-33.28 2.56-33.28-10.24-40.96-2.56-81.92 17.92-117.76 15.36-28.16 40.96-48.64 69.12-64-53.76 2.56-104.96 30.72-135.68 81.92-23.04 40.96-28.16 89.6-12.8 135.68 0 0 7.68 7.68 17.92 12.8 12.8 7.68 30.72 2.56 40.96-15.36z" fill="#F8BE32" p-id="3087"></path><path d="M668.16 529.92c-2.56-12.8-12.8-23.04-12.8-23.04 2.56-12.8-2.56-12.8-2.56-12.8 0-38.4-33.28-35.84-33.28-35.84s-33.28 0-33.28 35.84c0 0-5.12 2.56-2.56 12.8 0 0-10.24 7.68-12.8 23.04 0 0-2.56 23.04 10.24 2.56 0 0 2.56 7.68 7.68 12.8 0 0-7.68 2.56-7.68 10.24 0 0 0 7.68 17.92 7.68 0 0 12.8 0 17.92-7.68h5.12c5.12 5.12 17.92 7.68 17.92 7.68 20.48 0 17.92-7.68 17.92-7.68 0-7.68-7.68-10.24-7.68-10.24 5.12-7.68 7.68-12.8 7.68-12.8 12.8 20.48 10.24-2.56 10.24-2.56z" fill="#1599FF" p-id="3088"></path></svg>`
+        const toast = `<svg t="1717035288603" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="2552" width="200" height="200"><path d="M201.721606 965.072115c-61.967879 0-112.381781-50.415902-112.38178-112.38378v-449.539122C34.619932 370.105277 0 310.541393 0 244.441523c0-102.2938 83.221837-185.517638 185.517638-185.517638h238.859533c30.90594 0 60.909881 7.637985 87.623829 21.975957 26.711948-14.337972 56.715889-21.975957 87.623829-21.975957h238.859533c102.2938 0 185.517638 83.221837 185.517638 185.517638 0 66.097871-34.619932 125.665755-89.339826 158.70769v449.541122c0 61.967879-50.415902 112.383781-112.38178 112.38378h-620.558788v-0.002z" fill="#866539" p-id="2553"></path><path d="M838.480362 115.115775h-238.859533c-33.813934 0-64.581874 12.989975-87.623829 34.233933-23.043955-21.241959-53.809895-34.233933-87.623829-34.233933H185.517638c-71.42586 0-129.325747 57.899887-129.325748 129.325748 0 57.465888 37.491927 106.147793 89.339826 122.993759v485.255053c0 30.90594 25.287951 56.18989 56.18989 56.18989h620.554788c30.90394 0 56.18989-25.287951 56.18989-56.18989V367.433282c51.849899-16.843967 89.339826-65.527872 89.339826-122.993759 0.002-71.421861-57.899887-129.323747-129.325748-129.323748z" fill="#FDBA55" p-id="2554"></path><path d="M283.255447 280.199453m-29.641942 0a29.641942 29.641942 0 1 0 59.283884 0 29.641942 29.641942 0 1 0-59.283884 0Z" fill="#3F4963" p-id="2555"></path><path d="M740.760553 280.199453m-29.641942 0a29.641942 29.641942 0 1 0 59.283884 0 29.641942 29.641942 0 1 0-59.283884 0Z" fill="#3F4963" p-id="2556"></path><path d="M314.967385 383.80525h-63.419876a16.369968 16.369968 0 1 1 0-32.739936h63.419876a16.371968 16.371968 0 0 1 0 32.739936zM772.468491 383.80525h-63.419876a16.369968 16.369968 0 1 1 0-32.739936h63.419876a16.371968 16.371968 0 0 1 0 32.739936z" fill="#FF6376" p-id="2557"></path><path d="M474.891072 363.32329c-29.491942 0-53.483896-23.991953-53.483895-53.481895a16.369968 16.369968 0 1 1 32.739936 0c0 11.437978 9.305982 20.739959 20.741959 20.739959 11.437978 0 20.743959-9.305982 20.74396-20.739959a16.369968 16.369968 0 1 1 32.739936 0c0.004 29.489942-23.987953 53.481896-53.481896 53.481895z" fill="#3F4963" p-id="2558"></path><path d="M549.120927 363.32329c-29.491942 0-53.483896-23.991953-53.483895-53.481895a16.369968 16.369968 0 1 1 32.739936 0c0 11.437978 9.305982 20.739959 20.74196 20.739959 11.437978 0 20.741959-9.305982 20.741959-20.739959a16.369968 16.369968 0 1 1 32.739936 0c0.004 29.489942-23.989953 53.481896-53.479896 53.481895z" fill="#3F4963" p-id="2559"></path><path d="M322.025371 783.16247c-12.733975 12.731975-33.567934 12.731975-46.30191-0.002l-46.301909-46.301909c-12.733975-12.733975-12.733975-33.569934 0-46.30191l185.063638-185.063638c12.731975-12.731975 33.567934-12.731975 46.30191 0.002l46.30191 46.301909c12.733975 12.733975 12.731975 33.569934 0 46.30191l-185.063639 185.063638zM609.51281 783.16247c-12.731975 12.731975-33.567934 12.731975-46.30191-0.002l-46.30191-46.301909c-12.733975-12.733975-12.731975-33.569934 0-46.30191l185.063639-185.063638c12.733975-12.731975 33.567934-12.731975 46.30191 0.002l46.301909 46.301909c12.733975 12.733975 12.733975 33.569934 0 46.30191l-185.063638 185.063638z" fill="#FFD553" p-id="2560"></path></svg>`
+        const gobang = `<svg t="1717035506013" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="2714" width="200" height="200"><path d="M76.8 76.8h870.4v870.4H76.8z" fill="#FFDD50" p-id="2715"></path><path d="M559.97952 312.51968a150.86592 150.73792 0 1 0 301.73184 0 150.86592 150.73792 0 1 0-301.73184 0Z" fill="" p-id="2716"></path><path d="M161.3312 710.8352a150.86592 150.73792 0 1 0 301.73184 0 150.86592 150.73792 0 1 0-301.73184 0Z" fill="" p-id="2717"></path><path d="M942.05952 330.4448H81.94048c-9.9072 0-17.94048-8.02304-17.94048-17.92512s8.03328-17.92512 17.94048-17.92512h860.11904c9.9072 0 17.94048 8.02304 17.94048 17.92512s-8.03328 17.92512-17.94048 17.92512z" fill="" p-id="2718"></path><path d="M312.19712 960a17.93536 17.93536 0 0 1-17.94048-17.92512V81.92512a17.93024 17.93024 0 0 1 17.94048-17.92512 17.93024 17.93024 0 0 1 17.94048 17.92512v860.14976a17.93536 17.93536 0 0 1-17.94048 17.92512z" fill="" p-id="2719"></path><path d="M942.05952 728.76032H81.94048c-9.9072 0-17.94048-8.02816-17.94048-17.92512s8.03328-17.92512 17.94048-17.92512h860.11904c9.9072 0 17.94048 8.02816 17.94048 17.92512s-8.03328 17.92512-17.94048 17.92512z" fill="" p-id="2720"></path><path d="M710.84544 960a17.93536 17.93536 0 0 1-17.94048-17.92512V81.92512c0-9.90208 8.03328-17.92512 17.94048-17.92512s17.94048 8.02304 17.94048 17.92512v860.14976a17.94048 17.94048 0 0 1-17.94048 17.92512z" fill="" p-id="2721"></path><path d="M179.80416 312.51968a132.39296 132.28032 0 1 0 264.78592 0 132.39296 132.28032 0 1 0-264.78592 0Z" fill="#FFFFFF" p-id="2722"></path><path d="M312.19712 197.632c63.40096 0 114.98496 51.53792 114.98496 114.88768s-51.584 114.8928-114.98496 114.8928-114.99008-51.54304-114.99008-114.8928S248.79104 197.632 312.19712 197.632m0-35.85024c-83.31776 0-150.86592 67.48672-150.86592 150.73792 0 83.2512 67.54304 150.73792 150.86592 150.73792 83.31776 0 150.86592-67.48672 150.86592-150.73792-0.00512-83.2512-67.54816-150.73792-150.86592-150.73792z" fill="" p-id="2723"></path><path d="M578.67264 710.8352a132.1728 132.06528 0 1 0 264.3456 0 132.1728 132.06528 0 1 0-264.3456 0Z" fill="#FFFFFF" p-id="2724"></path><path d="M710.84544 595.94752c63.40096 0 114.98496 51.53792 114.98496 114.88768s-51.584 114.88768-114.98496 114.88768c-63.40608 0-114.98496-51.53792-114.98496-114.88768s51.57888-114.88768 114.98496-114.88768m0-35.85024c-83.31776 0-150.86592 67.48672-150.86592 150.73792 0 83.2512 67.54304 150.73792 150.86592 150.73792s150.86592-67.48672 150.86592-150.73792c-0.00512-83.2512-67.54816-150.73792-150.86592-150.73792z" fill="" p-id="2725"></path></svg>`;
+        const ai = `<svg t="1717035671590" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="10935" width="200" height="200"><path d="M640 725.3504c35.328 0 64-47.7696 64-106.7008 0-58.88-28.672-106.6496-64-106.6496s-64 47.7696-64 106.6496c0 58.88 28.672 106.7008 64 106.7008zM384 725.3504c35.328 0 64-47.7696 64-106.7008C448 559.7696 419.328 512 384 512s-64 47.7696-64 106.6496c0 58.88 28.672 106.7008 64 106.7008z" fill="#000000" p-id="10936"></path><path d="M640 128c0-47.104-57.344-85.3504-128-85.3504-70.7072 0-128 38.1952-128 85.3504 0 37.1712 35.584 68.7616 85.2992 80.4864v90.1632H256c-47.104 0-85.3504 38.1952-85.3504 85.3504v469.3504c0 47.104 38.1952 85.2992 85.3504 85.2992h512c47.104 0 85.2992-38.1952 85.2992-85.2992V384c0-47.104-38.1952-85.3504-85.2992-85.3504h-213.3504V208.4864c49.7152-11.7248 85.3504-43.3152 85.3504-80.4864zM256 384h512v469.3504H256V384zM42.6496 469.3504V768A42.6496 42.6496 0 1 0 128 768V469.3504a42.6496 42.6496 0 1 0-85.3504 0zM896 768a42.6496 42.6496 0 1 0 85.2992 0V469.3504a42.6496 42.6496 0 1 0-85.2992 0V768z" fill="#000000" p-id="10937"></path></svg>`
+        const p2 = `<svg t="1717035759619" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="11987" width="200" height="200"><path d="M668.740267 545.962667c-56.2176 31.1296-99.9424 84.5824-116.8384 151.825067-9.762133 38.843733-9.489067 77.858133-0.785067 114.312533 1.8432 14.9504 12.663467 27.9552 28.125867 31.8464 20.138667 5.051733 40.5504-7.168 45.636267-27.272533 1.6384-6.519467 1.467733-13.038933-0.2048-19.080533l0 0c-6.656-25.9072-7.099733-53.76-0.136533-81.5104 10.410667-41.403733 35.601067-75.229867 68.5056-97.28 1.058133 55.671467 21.333333 111.240533 61.44 155.921067 26.7264 29.832533 59.255467 51.4048 94.3104 64.580267 13.448533 6.826667 30.242133 5.154133 42.154667-5.5296 15.4624-13.858133 16.759467-37.614933 2.901333-53.077333-4.471467-4.983467-10.001067-8.4992-15.940267-10.513067l0 0c-25.1904-8.977067-48.571733-24.1664-67.652267-45.4656-41.3696-46.114133-52.1216-109.021867-33.621333-163.84l0 0 0 0c5.154133-9.557333 11.434667-20.2752 9.216-39.936-8.6016-70.4512-14.916267-122.1632-23.517867-192.6144 19.694933 8.157867 41.335467 27.477333 41.608533 50.926933 0.375467 21.2992-6.3488 37.410133-17.066667 57.821867-6.8608 22.357333 45.294933 48.162133 62.293333 15.223467 19.831467-47.547733 30.481067-107.4176-15.121067-149.538133-37.2736-30.5152-67.754667-59.357867-110.6944-66.833067-18.397867-3.1744-48.401067 0.8192-69.973333 4.8128-71.816533 10.103467-140.936533 5.256533-206.813867-17.646933l0 0c-11.093333-28.603733-38.912-48.878933-71.406933-48.878933-42.2912 0-76.5952 34.304-76.5952 76.5952s34.304 76.5952 76.5952 76.5952c29.149867 0 54.510933-16.315733 67.447467-40.277333l0 0c60.757333 21.060267 126.976 25.634133 196.608 19.933867L668.740267 545.962667 668.740267 545.962667zM219.136 478.6176c-4.744533 21.060267 1.672533 37.034667 10.752 52.189867 16.622933 29.934933-37.546667 55.1936-50.858667 33.4848-20.343467-30.788267-32.017067-83.114667-15.291733-119.296 23.6544-41.301333 61.678933-69.461333 101.751467-90.3168 20.6848-11.4688 42.325333-15.598933 69.597867-15.530667 21.0944-0.2048 45.841067 10.786133 68.676267 10.3424 65.979733 1.4336 120.4224-4.983467 162.7136-17.066667 38.024533-10.410667 48.366933 45.704533 21.2992 56.490667-64.068267 25.941333-131.584 28.023467-199.8848 24.337067l-32.631467 237.192533c58.094933 32.085333 102.741333 87.893333 118.510933 157.696 8.8064 39.082667 7.5776 78.062933-2.013867 114.2784-2.218667 14.916267-13.346133 27.648-28.910933 31.163733-20.241067 4.573867-40.379733-8.157867-44.9536-28.398933-1.467733-6.5536-1.160533-13.073067 0.682667-19.080533l0 0c7.2704-25.736533 8.430933-53.589333 2.1504-81.476267-10.001067-44.305067-36.898133-80.418133-72.362667-103.1168-0.1024 55.944533-19.626667 112.128-59.2896 157.5936-26.3168 30.173867-58.538667 52.189867-93.422933 65.877333-13.346133 6.997333-30.173867 5.563733-42.222933-4.949333-15.633067-13.653333-17.271467-37.376-3.618133-53.0432 4.4032-5.051733 9.898667-8.635733 15.803733-10.752l0 0c25.053867-9.3184 48.2304-24.814933 67.003733-46.3872 40.721067-46.6944 50.5856-109.738667 31.368533-164.283733-5.290667-10.103467-8.021333-21.845333-6.109867-36.625067l27.716267-202.4448C243.950933 439.739733 229.9904 453.870933 219.136 478.6176L219.136 478.6176zM647.3728 69.461333c42.2912 0 76.5952 34.304 76.5952 76.5952 0 42.2912-34.304 76.5952-76.5952 76.5952s-76.5952-34.304-76.5952-76.5952C570.7776 103.765333 605.0816 69.461333 647.3728 69.461333z" p-id="11988"></path></svg>`
+        const pptx = `<svg t="1717037541167" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="14853" width="200" height="200"><path d="M968.704 135.168h-430.08v752.64h430.08c15.36 0 26.624-12.288 26.624-26.624V162.816c0-15.36-11.264-27.648-26.624-27.648z" fill="#FF8A65" p-id="14854"></path><path d="M512 646.144h376.832v53.248H512z m0 107.52h376.832v54.272H512z m161.792-483.328c-89.088 0-161.792 72.704-161.792 161.792C512 521.216 584.704 593.92 673.792 593.92s161.792-72.704 161.792-161.792H673.792V270.336z" fill="#FBE9E7" p-id="14855"></path><path d="M727.04 216.064v161.792h161.792c0-89.088-72.704-161.792-161.792-161.792z" fill="#FBE9E7" p-id="14856"></path><path d="M592.896 996.352L28.672 888.832V135.168L592.896 27.648z" fill="#E64A19" p-id="14857"></path><path d="M319.488 327.68H192.512v368.64h78.848V569.344h40.96c44.032 0 78.848-11.264 104.448-34.816 25.6-22.528 38.912-53.248 38.912-90.112C455.68 366.592 409.6 327.68 319.488 327.68z m-14.336 178.176h-33.792V391.168h33.792c43.008 0 64.512 18.432 64.512 56.32 0 39.936-21.504 58.368-64.512 58.368z" fill="#FFFFFF" p-id="14858"></path></svg>`
+        const data = {
+            //id    name    showName    color    radiusRatio    fontSizeRatio    fontColor    icon    link    hasMask    tooltip    transparent    copy    hasMask
+            "nodes": [
+                { "id": "1", "name": "github", "showName": false, "color": "#FF5733", "radiusRatio": 0.13, "fontSizeRatio": 0.015, "fontColor": "white", "icon": "https://avatars.githubusercontent.com/u/60283556?v=4", "link": "https://github.com/Honghurumeng", "hasMask": true, "tooltip": "Github", "transparent": true },
+                { "id": "2", "name": "gmail", "showName": false, "color": "#33FF57", "radiusRatio": 0.07, "fontSizeRatio": 0.012, "fontColor": "white", "hasMask": false, "tooltip": "点击复制：honghurumeng@gamil.com", "icon": 'https://ssl.gstatic.com/ui/v1/icons/mail/rfr/logo_gmail_lockup_default_2x_r5.png', "transparent": true, "copy": 'honghurumeng@gamil.com' },
+                { "id": "7", "name": "qqmail", "showName": false, "color": "#33FF57", "radiusRatio": 0.05, "fontSizeRatio": 0.012, "fontColor": "white", "hasMask": false, "tooltip": "点击复制：710297266@qq.com", "icon": qqmail, "transparent": true, "copy": '710297266@qq.com' },
+                { "id": "3", "name": "mtoast", "showName": false, "color": "#3357FF", "radiusRatio": 0.04, "fontSizeRatio": 0.02, "fontColor": "white", "hasMask": false, "tooltip": "单JS文件的原生toast", "link": 'https://honghurumeng.github.io/mtoast-demo', "icon": toast, "transparent": true },
+                { "id": "4", "name": "五子棋", "showName": false, "color": "#000000", "radiusRatio": 0.04, "fontSizeRatio": 0.02, "fontColor": "white", "hasMask": false, "transparent": true, "icon": gobang, "tooltip": "五子棋游戏" },
+                { "id": "5", "name": "双人", "showName": false, "color": "#000000", "radiusRatio": 0.02, "fontSizeRatio": 0.02, "fontColor": "white", "hasMask": false, "transparent": true, "link": 'https://honghurumeng.github.io/Gobang-VS-Human', "icon": p2, "tooltip": "开始双人对战" },
+                { "id": "6", "name": "人机", "showName": false, "color": "#000000", "radiusRatio": 0.02, "fontSizeRatio": 0.02, "fontColor": "white", "hasMask": false, "transparent": true, "link": 'https://honghurumeng.github.io/Gobang-VS-AI', "icon": ai, "tooltip": "与电脑开始游戏" },
+                { "id": "8", "name": "ppt", "showName": false, "color": "#000000", "radiusRatio": 0.04, "fontSizeRatio": 0.02, "fontColor": "white", "hasMask": false, "transparent": true, "link": 'https://github.com/Honghurumeng/pptx_builder', "icon": pptx, "tooltip": "通过xlsx及pptx模板批量生成文件" },
+                { "id": "9", "name": "mail", "showName": false, "color": "#000000", "radiusRatio": 0.04, "fontSizeRatio": 0.02, "fontColor": "white", "hasMask": false, "transparent": true, "icon": mail, },
+            ],
+            //source    target    distanceRatio    color    strokeWidth    lineType    relativeDirection
+            "links": [
+                { "source": "1", "target": "9", "distanceRatio": 0.1, "color": "#FDBA5699", "strokeWidth": 2, "lineType": "curve", "relativeDirection": { "dx": 0, "dy": -1 }, },
+                { "source": "1", "target": "3", "distanceRatio": 0.1, "color": "#FDBA5699", "strokeWidth": 2, "lineType": "curve" },
+                { "source": "9", "target": "7", "distanceRatio": 0.05, "color": "#8298FF99", "strokeWidth": 1, "lineType": "curve" },
+                { "source": "9", "target": "2", "distanceRatio": 0.05, "color": "#8298FF99", "strokeWidth": 1, "lineType": "curve" },
+                { "source": "1", "target": "8", "distanceRatio": 0.1, "color": "#FDBA5699", "strokeWidth": 2, "lineType": "curve" },
+                { "source": "1", "target": "4", "distanceRatio": 0.2, "color": "#FDBA5699", "strokeWidth": 2, "lineType": "curve", "relativeDirection": { "dx": -1, "dy": 0 }, },
+                { "source": "4", "target": "5", "distanceRatio": 0.05, "color": "#8298FF99", "strokeWidth": 1, "lineType": "curve" },
+                { "source": "4", "target": "6", "distanceRatio": 0.05, "color": "#8298FF99", "strokeWidth": 1, "lineType": "curve" },
+            ]
+        };
+        const container = d3.select("#mindmap-container");
+        const tooltip = d3.select("#tooltip");
+        let width = container.node().getBoundingClientRect().width;
+        let height = container.node().getBoundingClientRect().height;
+        function computeRadius(d) {
+            return Math.min(width, height) * d.radiusRatio;
+        }
+        function computeFontSize(d) {
+            return Math.min(width, height) * d.fontSizeRatio;
+        }
+        // function computeDistanceRatio(d) {
+        //     return Math.min(width, height) * d.distanceRatio;
+        // }
+        function computeDistanceRatioNum(d) {
+            return Math.min(width, height) * d;
+        }
+        // 初始化svg
+        const svg = container.append("svg")
+            .attr("width", width)
+            .attr("height", height);
+        // 创建clipPath
+        const clipPath = svg.append("defs")
+            .selectAll("clipPath")
+            .data(data.nodes)
+            .enter().append("clipPath")
+            .attr("id", d => `clip-${d.id}`)
+            .append("circle")
+            .attr("r", computeRadius)
+            .attr("cx", 0)
+            .attr("cy", 0);
+        // 创建力模拟
+        const simulation = d3.forceSimulation(data.nodes)
+            .force("link", d3.forceLink(data.links)
+                .id(d => d.id)
+                .distance(link => {
+                    // 获取源节点和目标节点
+                    const sourceNode = data.nodes.find(node => node.id === link.source.id);
+                    const targetNode = data.nodes.find(node => node.id === link.target.id);
+                    // 计算链接的长度，包括源节点和目标节点的半径
+                    // console.log(sourceNode.radiusRatio, targetNode.radiusRatio, link.distanceRatio,targetNode.name);
+                    // console.log(computeDistanceRatioNum(sourceNode.radiusRatio + targetNode.radiusRatio + link.distanceRatio));
+                    return computeDistanceRatioNum(sourceNode.radiusRatio + targetNode.radiusRatio + link.distanceRatio);
+                })
+            )
+            .force("charge", d3.forceManyBody().strength(-200))
+            .force("center", d3.forceCenter(width / 2, height / 2))
+            .on("tick", ticked);
+        // 链接元素
+        const link = svg.append("g")
+            .selectAll("path")
+            .data(data.links)
+            .enter().append("path")
+            .attr("fill", "none")
+            .attr("stroke", d => d.color)
+            .attr("stroke-width", d => d.strokeWidth);
+        // 节点元素
+        const node = svg.append("g")
+            .selectAll("g")
+            .data(data.nodes)
+            .enter().append("g")
+            .classed("clickable", d => !!d.link)  // 加入clickable类
+            .on("click", (event, d) => {
+                if (d.copy) {
+                    navigator.clipboard.writeText(d.copy).then(function () {
+                        autolog.success('已复制到剪贴板');
+                    }, function (err) {
+                        autolog.error('复制失败');
+                    });
+                } else if (d.link) {
+                    window.open(d.link, "_blank");
+                }
+            })
+            .on("mouseover", function (event, d) {
+                let scaleFactor = 1.2;
+                d3.select(this).select("circle").transition().duration(300).attr("r", computeRadius(d) * scaleFactor);
+                d3.select(this).select("text").transition().duration(300).attr("font-size", computeFontSize(d) * scaleFactor);
+                d3.select(`#clip-${d.id} circle`).transition().duration(300).attr("r", computeRadius(d) * scaleFactor);
+                if (d.icon.startsWith('http')) {
+                    let image = d3.select(this).select("image");
+                    image.transition().duration(300).attr("width", computeRadius(d) * scaleFactor * 2).attr("height", computeRadius(d) * scaleFactor * 2).attr("x", -computeRadius(d) * scaleFactor).attr("y", -computeRadius(d) * scaleFactor);
+                } else {
+                    let div = d3.select(this).select("foreignObject");
+                    if (div.node()) {
+                        div.transition().duration(200).attr("width", computeRadius(d) * scaleFactor * 2).attr("height", computeRadius(d) * scaleFactor * 2).attr("x", -computeRadius(d) * scaleFactor).attr("y", -computeRadius(d) * scaleFactor);
+                    }
+                }
+                if (d.tooltip) {
+                    tooltip.style("visibility", "visible")
+                        .html(d.tooltip)
+                        .style("left", (event.pageX + 10) + "px")
+                        .style("top", (event.pageY - 20) + "px");
+                } else {
+                    tooltip.style("visibility", "hidden");
+                }
+            })
+            .on("mousemove", function (event) {
+                tooltip.style("left", (event.pageX + 10) + "px")
+                    .style("top", (event.pageY - 20) + "px");
+            })
+            .on("mouseout", function (event, d) {
+                d3.select(this).select("circle").transition().duration(300).attr("r", computeRadius(d));
+                d3.select(this).select("text").transition().duration(300).attr("font-size", computeFontSize(d));
+                d3.select(`#clip-${d.id} circle`).transition().duration(300).attr("r", computeRadius(d));
+                if (d.icon.startsWith('http')) {
+                    let image = d3.select(this).select("image");
+                    image.transition().duration(300).attr("width", computeRadius(d) * 2).attr("height", computeRadius(d) * 2).attr("x", -computeRadius(d)).attr("y", -computeRadius(d));
+                } else {
+                    let div = d3.select(this).select("foreignObject");
+                    if (div.node()) {
+                        div.transition().duration(200).attr("width", computeRadius(d) * 2).attr("height", computeRadius(d) * 2).attr("x", -computeRadius(d)).attr("y", -computeRadius(d));
+                    }
+                }
+                tooltip.style("visibility", "hidden");
+            });
+        node.append("circle")
+            .attr("r", computeRadius)
+            .attr("fill", d => d.transparent ? "rgba(255, 255, 255, 0)" : d.color);
+        node.filter(d => d.icon).each(function (d) {
+            if (d.icon.startsWith('http')) {
+                d3.select(this).append("image")
+                    .attr("xlink:href", d.icon)
+                    .attr("width", d => computeRadius(d) * 2)
+                    .attr("height", d => computeRadius(d) * 2)
+                    .attr("x", d => -computeRadius(d))
+                    .attr("y", d => -computeRadius(d))
+                    .attr("clip-path", d => d.hasMask ? `url(#clip-${d.id})` : null)
+                    .attr("pointer-events", "none"); // 确保图片不干扰鼠标事件
+            } else {
+                const radius = computeRadius(d);
+                d3.select(this).append("foreignObject")
+                    .attr("width", radius * 2)
+                    .attr("height", radius * 2)
+                    .attr("x", -radius)
+                    .attr("y", -radius)
+                    .html(`<div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
+                               ${d.icon}
+                            </div>`);
+            }
+        });
+        // 添加节点名称文本
+        node.filter(d => d.showName).append("text")
+            .attr("dy", ".35em")
+            .attr("text-anchor", "middle")
+            .attr("font-size", computeFontSize)
+            .attr("fill", d => d.fontColor)
+            .text(d => d.name);
+        // 移除默认的系统tooltip
+        node.append("title")
+            .remove();
+        // 力模拟的tick事件处理
+        function ticked() {
+            link.attr("d", d => {
+                const { x: x1, y: y1 } = d.source;
+                const { x: x2, y: y2 } = d.target;
+                if (d.lineType === 'line') {
+                    return `M${x1},${y1}L${x2},${y2}`;
+                } else { // 默认使用曲线
+                    const dx = x2 - x1;
+                    const dy = y2 - y1;
+                    const dr = Math.sqrt(dx * dx + dy * dy);
+                    return `M${x1},${y1}A${dr},${dr} 0 0,1 ${x2},${y2}`;
+                }
+            });
+            node.attr("transform", d => `translate(${d.x},${d.y})`);
+            // 应用相对方向和距离
+            data.links.forEach(link => {
+                if (link.relativeDirection) {
+                    const angle = Math.atan2(link.relativeDirection.dy, link.relativeDirection.dx);
+                    const sourceNode = data.nodes.find(node => node.id === link.source.id);
+                    const targetNode = data.nodes.find(node => node.id === link.target.id);
+                    link.target.fx = link.source.x + computeDistanceRatioNum(sourceNode.radiusRatio + targetNode.radiusRatio + link.distanceRatio) * Math.cos(angle);
+                    link.target.fy = link.source.y + computeDistanceRatioNum(sourceNode.radiusRatio + targetNode.radiusRatio + link.distanceRatio) * Math.sin(angle);
+                } else {
+                    // 解除约束
+                    link.target.fx = null;
+                    link.target.fy = null;
+                }
+            });
+        }
+        // 窗口大小变化事件处理
+        window.addEventListener('resize', () => {
+            width = container.node().getBoundingClientRect().width;
+            height = container.node().getBoundingClientRect().height;
+            svg.attr('width', width).attr('height', height);
+            simulation.force('center', d3.forceCenter(width / 2, height / 2));
+            simulation.alpha(1).restart();
+        });
+        // console.log("Initial JSON Data:", JSON.stringify(data, null, 2));
+    </script>
+</body>
+
+</html>
