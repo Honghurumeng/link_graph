@@ -8,11 +8,11 @@
 
 节点动作包括打开窗口和点击复制。
 
-复制时的toast组件是[mtoast](https://honghurumeng.github.io/mtoast-demo)
+点击复制时的toast组件是[mtoast](https://honghurumeng.github.io/mtoast-demo)
 
 [点击查看Demo](https://honghurumeng.github.io/)
 
-![demo](./image/截屏2024-05-30%2011.43.56.png)
+![demo](./image/截屏2024-05-31%2008.39.36.png)
 
 ## 配置json
 
