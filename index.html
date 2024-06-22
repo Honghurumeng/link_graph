@@ -129,6 +129,10 @@
         const svg = container.append("svg")
             .attr("width", width)
             .attr("height", height);
+        // 解决SVG内容溢出的问题
+        if (width < height) {
+            width *= 0.8;
+        }
         // 创建clipPath
         const clipPath = svg.append("defs")
             .selectAll("clipPath")
